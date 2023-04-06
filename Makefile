@@ -1,7 +1,7 @@
 ARM:=arm-none-eabi
-CFLAGS:=-O2 -g -mthumb -mtune=cortex-m4 -I Libreria -fno-builtin
+CFLAGS:=-O0 -g -mthumb -mtune=cortex-m4 -I Libreria -fno-builtin
 LDFLAGS:= /usr/lib/gcc/arm-none-eabi/12.2.0/thumb/v6-m/nofp/libgcc.a
-OBJS:=main.o usart.o vector_table.o Libreria/system_stm32f30x.o
+OBJS:=main.o usart.o tft.o vector_table.o Libreria/system_stm32f30x.o
 
 all: out.bin out.lis
 

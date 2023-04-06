@@ -1,9 +1,15 @@
 #include <stm32f30x.h>
 
+#include "tft.h"
 #include "usart.h"
+
 extern const unsigned int DATA_START;
 extern const unsigned int DATA_LEN;
 extern const unsigned int DATA_LOAD_ADDR;
+
+// GPIOB TFT
+// GPIOC USART
+// GPIOD TFT
 
 int main() {
     // Copy .data from flash to ram
@@ -14,12 +20,19 @@ int main() {
     }
 
     SystemInit();
-
     usart_init(9600);
-    usart_putc('A');
-    usart_puthex(0xABCDEF01);
-    usart_putc('B');
-    usart_puts("ABC\n");
+
+    usart_puts("Oscilloscopio 2000\n");
+    tft_init();
+    usart_puts("TFT Init done\n");
+
+    tft_write16(0x0, TFT_RS_CMD);
+    usart_puthex(tft_read16());
+    usart_putc('\n');
+    usart_puthex(tft_read16());
+    usart_putc('\n');
+    usart_puthex(tft_read16());
+    usart_putc('\n');
 
     while (1)
         ;
