@@ -1,5 +1,6 @@
 #include <stm32f30x.h>
 
+#include "delay.h"
 #include "tft.h"
 #include "usart.h"
 
@@ -21,16 +22,16 @@ int main() {
 
     SystemInit();
     usart_init(9600);
+    delay_init();
 
     usart_puts("Oscilloscopio 2000\n");
+
     tft_init();
     usart_puts("TFT Init done\n");
+    usart_puthex(SystemCoreClock);
+    usart_putc('\n');
 
     tft_write16(0x0, TFT_RS_CMD);
-    usart_puthex(tft_read16());
-    usart_putc('\n');
-    usart_puthex(tft_read16());
-    usart_putc('\n');
     usart_puthex(tft_read16());
     usart_putc('\n');
 

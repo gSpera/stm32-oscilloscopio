@@ -2,13 +2,19 @@
 
 #include <stm32f30x.h>
 
+#include "delay.h"
 #include "usart.h"
+
+// Alias delay_ms => delay_ns
+// Is this correct?? No
+// Do we care?? No
+#define delay_ns(X) delay_ms(1)
 
 #define LCD_RST GPIO_ODR_3
 #define LCD_CS GPIO_ODR_4
+#define LCD_RS GPIO_ODR_5
 #define LCD_WR GPIO_ODR_6
 #define LCD_RD GPIO_ODR_7
-#define LCD_RS GPIO_ODR_5
 #define TFTLCD_DELAY 0xFFFF
 
 void tft_data_out() {
@@ -27,27 +33,32 @@ void tft_data_in() {
 void tft_init_regs();
 void tft_init() {
     RCC->AHBENR |= RCC_AHBENR_GPIODEN | RCC_AHBENR_GPIOBEN;
+    RCC->AHBENR |= RCC_AHBENR_GPIOEEN;
 
     // GPIOD Moder set to Output from D0 to D7 (Data)
     // GPIOB Moder set to Output from B3 to B7 (Control)
     tft_data_out();
+    GPIOE->MODER = GPIOD->MODER << 16;
+    GPIOB->MODER = 0;
     GPIOB->MODER |= GPIO_MODER_MODER3_0 | GPIO_MODER_MODER4_0 |
                     GPIO_MODER_MODER5_0 | GPIO_MODER_MODER6_0 |
                     GPIO_MODER_MODER7_0;
 
-    // LCD_RST to high
     // LCD_CS  to low
+    // LCD_RST to high
     // LCD_WR  to high
     // LCD_RD  to high
     GPIOB->ODR &= ~(LCD_CS);
     GPIOB->ODR |= LCD_RST | LCD_WR | LCD_RD;
 
-    for (int i = 0; i < 50 * 100; i++)
-        ;
+    delay_ns(50);
     GPIOB->ODR &= ~(LCD_RST);
-    for (int i = 0; i < 1000; i++)
-        ;
+    delay_ns(150);
     GPIOB->ODR |= LCD_RST;
+    delay_ns(120);
+
+    tft_write16(0xB0, TFT_RS_CMD);
+    tft_write16(0, TFT_RS_DAT);
 
     tft_init_regs();
 }
@@ -76,24 +87,22 @@ void lcdWrite(uint8_t v, bool rs) {
 */
 
 void tft_write8(uint8_t v, bool rs) {
-    tft_data_out();
-
     // Set or reset GPIOB_5 (LCD_RS) based on rs
-    GPIOB->BSRR = 1 << (rs == TFT_RS_CMD ? 21 : 5);
+    GPIOB->BSRR = (rs == TFT_RS_CMD ? GPIO_BSRR_BR_5 : GPIO_BSRR_BS_5);
+
     // Set data bus to v
     GPIOD->ODR = v;
+    GPIOE->ODR = v << 8;
     // Write Strobe
 
     // WR low
     GPIOB->BSRR = GPIO_BSRR_BR_6;
     // Wait 45ns
-    for (int i = 0; i < 45 * 100; i++) {
-    }
+    delay_ns(45);
     // WR high
     // Wait 70ns
     GPIOB->BSRR = GPIO_BSRR_BS_6;
-    for (int i = 0; i < 70 * 100; i++) {
-    }
+    delay_ns(70);
 }
 
 void tft_write16(uint16_t v, bool rs) {
@@ -221,7 +230,7 @@ void tft_init_regs() {
 
     uint16_t size = sizeof(registers);
     usart_puts("Start writing registers\n");
-    for (int i = 0; i < size / 8;) {
+    for (int i = 0; i < size / 2;) {
         uint16_t cmd = registers[i++];
         uint16_t d = registers[i++];
         usart_puts("Register: ");
@@ -233,8 +242,7 @@ void tft_init_regs() {
         usart_putc('\n');
 
         if (cmd == TFTLCD_DELAY) {
-            for (int j = 0; j < d * 1000; j++)
-                ;
+            delay_ms(d);
         } else {
             tft_write16(cmd, TFT_RS_CMD);
             tft_write16(d, TFT_RS_DAT);
@@ -252,12 +260,11 @@ void tft_init_regs() {
 uint8_t tft_read8() {
     tft_data_in();
     GPIOB->ODR &= ~(LCD_RD);
-    for (int i = 0; i < 170; i++)
-        ;
+
+    delay_ns(170);
     uint8_t data = GPIOD->IDR & 0xFF;
     GPIOB->ODR |= LCD_RD;
-    for (int i = 0; i < 150; i++)
-        ;
+    delay_ns(150);
     return data;
 }
-uint16_t tft_read16() { return (((uint16_t)tft_read8()) << 8) | tft_read8(); }
+uint16_t tft_read16() { return (tft_read8() << 8) | tft_read8(); }
