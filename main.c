@@ -50,15 +50,15 @@ int main() {
     tft_write16(0, TFT_RS_DAT);
 
     tft_write16(TFT_WRITE_GRAM, TFT_RS_CMD);
-    for (int y=0;y<320;y++) {
-        for (int x=0;x<240;x++) {
+    for (int y=0;y<=320;y++) {
+        for (int x=0;x<=240;x++) {
             tft_write16(0xA0, TFT_RS_DAT);
         }
     }
 
     tft_write16(TFT_WRITE_GRAM, TFT_RS_CMD);
-    for (int y=0;y<320;y++) {
-        for (int x=0;x<240;x++) {
+    for (int y=0;y<=320;y++) {
+        for (int x=0;x<=240;x++) {
             tft_write16(0xADAD, TFT_RS_DAT);
         }
     }
@@ -77,12 +77,15 @@ int main() {
     tft_write16(TFT_GRAM_VSET, TFT_RS_CMD);
     tft_write16(0, TFT_RS_DAT);
 
+uint16_t arr[3] = {0xFF, 0xAA, 0xA0F0};
+for (int i=0;i<100;i++) {
     tft_write16(TFT_WRITE_GRAM, TFT_RS_CMD);
-    for (int y=10;y<100;y++) {
-        for (int x=10;x<100;x++) {
-            tft_write16(0xA0A0, TFT_RS_DAT);
+    for (int y=10;y<=100;y++) {
+        for (int x=10;x<=100;x++) {
+            tft_write16(arr[i % 3], TFT_RS_DAT);
         }
     }
+}
 
     /*
     tft_write16(0x0, TFT_RS_CMD);
