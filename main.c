@@ -24,6 +24,10 @@ int main() {
     usart_init(9600);
     delay_init();
 
+    tft_write16(0x0, TFT_RS_CMD);
+    usart_puthex(tft_read16(TFT_RS_CMD));
+    usart_putc('\n');
+
     usart_puts("Oscilloscopio 2000\n");
 
     tft_init();
@@ -31,9 +35,63 @@ int main() {
     usart_puthex(SystemCoreClock);
     usart_putc('\n');
 
+    tft_write16(TFT_WIN_HSTART, TFT_RS_CMD);
+    tft_write16(0, TFT_RS_DAT);
+    tft_write16(TFT_WIN_HEND, TFT_RS_CMD);
+    tft_write16(240, TFT_RS_DAT);
+    tft_write16(TFT_WIN_VSTART, TFT_RS_CMD);
+    tft_write16(0, TFT_RS_DAT);
+    tft_write16(TFT_WIN_VEND, TFT_RS_CMD);
+    tft_write16(321, TFT_RS_DAT);
+
+    tft_write16(TFT_GRAM_HSET, TFT_RS_CMD);
+    tft_write16(0, TFT_RS_DAT);
+    tft_write16(TFT_GRAM_VSET, TFT_RS_CMD);
+    tft_write16(0, TFT_RS_DAT);
+
+    tft_write16(TFT_WRITE_GRAM, TFT_RS_CMD);
+    for (int y=0;y<320;y++) {
+        for (int x=0;x<240;x++) {
+            tft_write16(0xA0, TFT_RS_DAT);
+        }
+    }
+
+    tft_write16(TFT_WRITE_GRAM, TFT_RS_CMD);
+    for (int y=0;y<320;y++) {
+        for (int x=0;x<240;x++) {
+            tft_write16(0xADAD, TFT_RS_DAT);
+        }
+    }
+
+    tft_write16(TFT_WIN_HSTART, TFT_RS_CMD);
+    tft_write16(10, TFT_RS_DAT);
+    tft_write16(TFT_WIN_HEND, TFT_RS_CMD);
+    tft_write16(100, TFT_RS_DAT);
+    tft_write16(TFT_WIN_VSTART, TFT_RS_CMD);
+    tft_write16(10, TFT_RS_DAT);
+    tft_write16(TFT_WIN_VEND, TFT_RS_CMD);
+    tft_write16(100, TFT_RS_DAT);
+
+    tft_write16(TFT_GRAM_HSET, TFT_RS_CMD);
+    tft_write16(0, TFT_RS_DAT);
+    tft_write16(TFT_GRAM_VSET, TFT_RS_CMD);
+    tft_write16(0, TFT_RS_DAT);
+
+    tft_write16(TFT_WRITE_GRAM, TFT_RS_CMD);
+    for (int y=10;y<100;y++) {
+        for (int x=10;x<100;x++) {
+            tft_write16(0xA0A0, TFT_RS_DAT);
+        }
+    }
+
+    /*
     tft_write16(0x0, TFT_RS_CMD);
-    usart_puthex(tft_read16());
+    usart_puthex(tft_read16(TFT_RS_CMD));
     usart_putc('\n');
+    */
+
+
+    usart_puts("Finished drawing\n");
 
     while (1)
         ;

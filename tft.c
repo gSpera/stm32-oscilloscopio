@@ -8,7 +8,7 @@
 // Alias delay_ms => delay_ns
 // Is this correct?? No
 // Do we care?? No
-#define delay_ns(X) delay_ms(1)
+#define delay_ns(X) delay_us(1)
 
 #define LCD_RST GPIO_ODR_3
 #define LCD_CS GPIO_ODR_4
@@ -43,6 +43,7 @@ void tft_init() {
     GPIOB->MODER |= GPIO_MODER_MODER3_0 | GPIO_MODER_MODER4_0 |
                     GPIO_MODER_MODER5_0 | GPIO_MODER_MODER6_0 |
                     GPIO_MODER_MODER7_0;
+    GPIOD->OSPEEDR = 0xFFFF;
 
     // LCD_CS  to low
     // LCD_RST to high
@@ -96,9 +97,11 @@ void tft_write8(uint8_t v, bool rs) {
     // Write Strobe
 
     // WR low
+    delay_ns(10); // Should be 0
     GPIOB->BSRR = GPIO_BSRR_BR_6;
     // Wait 45ns
-    delay_ns(45);
+    // Wait some more, for tCYCW
+    delay_ns(70);
     // WR high
     // Wait 70ns
     GPIOB->BSRR = GPIO_BSRR_BS_6;
@@ -257,9 +260,10 @@ void tft_init_regs() {
     tft_write16(0xA700, TFT_RS_DAT);
 }
 
-uint8_t tft_read8() {
+uint8_t tft_read8(bool rs) {
     tft_data_in();
     GPIOB->ODR &= ~(LCD_RD);
+    GPIOB->BSRR = (rs == TFT_RS_CMD ? GPIO_BSRR_BR_5 : GPIO_BSRR_BS_5);
 
     delay_ns(170);
     uint8_t data = GPIOD->IDR & 0xFF;
@@ -267,4 +271,4 @@ uint8_t tft_read8() {
     delay_ns(150);
     return data;
 }
-uint16_t tft_read16() { return (tft_read8() << 8) | tft_read8(); }
+uint16_t tft_read16(bool rs) { return (tft_read8(rs) << 8) | tft_read8(rs); }
