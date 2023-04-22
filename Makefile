@@ -17,7 +17,7 @@ out.elf: $(OBJS)
 
 %.o: %.s
 	$(ARM)-as -o $@ -c $< 
-%.o: %.c %.h
+%.o: %.c
 	$(ARM)-gcc -o $@ $(CFLAGS) -c $< 
 
 
