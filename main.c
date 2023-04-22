@@ -3,6 +3,7 @@
 #include "delay.h"
 #include "tft.h"
 #include "usart.h"
+#include "gfx.h"
 
 extern const unsigned int DATA_START;
 extern const unsigned int DATA_LEN;
@@ -35,6 +36,17 @@ int main() {
     usart_puthex(SystemCoreClock);
     usart_putc('\n');
 
+    tft_write16(0x3, TFT_RS_CMD);
+    tft_write16((1<<12), TFT_RS_DAT);
+
+    gfx_fill_rect(0, 0, 240, 320, gfx_color(31, 0, 31));
+    gfx_fill_rect(0, 0, 240, 320, gfx_color(31, 10, 31));
+
+    gfx_fill_rect(50, 50, 50, 50, gfx_color(31, 0, 0));
+    gfx_fill_rect(100, 50, 50, 50, gfx_color(0, 31, 0));
+    gfx_fill_rect(150, 50, 50, 50, gfx_color(0, 0, 31));
+
+    /*
     tft_write16(TFT_WIN_HSTART, TFT_RS_CMD);
     tft_write16(0, TFT_RS_DAT);
     tft_write16(TFT_WIN_HEND, TFT_RS_CMD);
@@ -62,6 +74,7 @@ int main() {
             tft_write16(0xADAD*y, TFT_RS_DAT);
         }
     }
+    gfx_fill_rect(0, 0, 240, 320, gfx_color(31, 0, 31));
 
     tft_write16(TFT_WIN_HSTART, TFT_RS_CMD);
     tft_write16(10, TFT_RS_DAT);
@@ -86,6 +99,22 @@ int main() {
             }
         }
     }
+    gfx_fill_rect(20, 20, 50, 50, gfx_color(31, 0, 0));
+    gfx_fill_rect(50, 20, 70, 70, gfx_color(31, 31, 0));
+
+    tft_write16(TFT_GRAM_HSET, TFT_RS_CMD);
+    tft_write16(200, TFT_RS_DAT);
+    tft_write16(TFT_GRAM_VSET, TFT_RS_CMD);
+    tft_write16(200, TFT_RS_DAT);
+    tft_write16(TFT_WRITE_GRAM, TFT_RS_CMD);
+    for (int i=0;i<100;i++) {
+        tft_write16(0xAAFF, TFT_RS_DAT);
+    }
+    */
+
+    gfx_draw_button(100, 100, 30, 90, 5, GFX_GRAY(15), GFX_BLACK);
+
+    gfx_draw_text(0, 0, GFX_RED, GFX_GREEN, "This is at 0");
 
     /*
     tft_write16(0x0, TFT_RS_CMD);

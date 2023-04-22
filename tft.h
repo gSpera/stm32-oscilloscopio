@@ -9,6 +9,8 @@
 
 // TFT Commands
 #define TFT_WRITE_GRAM 0x22
+#define TFT_ENTRY_MODE 0x03
+
 #define TFT_WIN_HSTART 0x50
 #define TFT_WIN_HEND 0x51
 #define TFT_WIN_VSTART 0x52

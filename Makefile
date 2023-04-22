@@ -1,7 +1,7 @@
 ARM:=arm-none-eabi
 CFLAGS:=-O0 -g -mthumb -mtune=cortex-m4 -I Libreria -fno-builtin
 LDFLAGS:= /usr/lib/gcc/arm-none-eabi/12.2.0/thumb/v6-m/nofp/libgcc.a
-OBJS:=main.o usart.o tft.o delay.o vector_table.o Libreria/system_stm32f30x.o
+OBJS:=main.o usart.o tft.o delay.o vector_table.o Libreria/system_stm32f30x.o gfx.o
 OPENOCD_CFG=/usr/share/openocd/scripts/board/stm32f3discovery.cfg
 
 all: out.bin out.lis
@@ -17,7 +17,7 @@ out.elf: $(OBJS)
 
 %.o: %.s
 	$(ARM)-as -o $@ -c $< 
-%.o: %.c
+%.o: %.c %.h
 	$(ARM)-gcc -o $@ $(CFLAGS) -c $< 
 
 
