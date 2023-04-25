@@ -12,7 +12,7 @@
 
 #define LCD_RST GPIO_ODR_3
 #define LCD_CS GPIO_ODR_4
-#define LCD_RS GPIO_ODR_5
+#define LCD_RS GPIO_ODR_9
 #define LCD_WR GPIO_ODR_6
 #define LCD_RD GPIO_ODR_7
 #define TFTLCD_DELAY 0xFFFF
@@ -33,15 +33,13 @@ void tft_data_in() {
 void tft_init_regs();
 void tft_init() {
     RCC->AHBENR |= RCC_AHBENR_GPIODEN | RCC_AHBENR_GPIOBEN;
-    RCC->AHBENR |= RCC_AHBENR_GPIOEEN;
 
     // GPIOD Moder set to Output from D0 to D7 (Data)
     // GPIOB Moder set to Output from B3 to B7 (Control)
     tft_data_out();
-    GPIOE->MODER = GPIOD->MODER << 16;
     GPIOB->MODER = 0;
     GPIOB->MODER |= GPIO_MODER_MODER3_0 | GPIO_MODER_MODER4_0 |
-                    GPIO_MODER_MODER5_0 | GPIO_MODER_MODER6_0 |
+                    GPIO_MODER_MODER9_0 | GPIO_MODER_MODER6_0 |
                     GPIO_MODER_MODER7_0;
     GPIOD->OSPEEDR = 0xFFFF;
 
@@ -89,11 +87,10 @@ void lcdWrite(uint8_t v, bool rs) {
 
 void tft_write8(uint8_t v, bool rs) {
     // Set or reset GPIOB_5 (LCD_RS) based on rs
-    GPIOB->BSRR = (rs == TFT_RS_CMD ? GPIO_BSRR_BR_5 : GPIO_BSRR_BS_5);
+    GPIOB->BSRR = (rs == TFT_RS_CMD ? GPIO_BSRR_BR_9 : GPIO_BSRR_BS_9);
 
     // Set data bus to v
     GPIOD->ODR = v;
-    GPIOE->ODR = v << 8;
     // Write Strobe
 
     // WR low
@@ -263,7 +260,7 @@ void tft_init_regs() {
 uint8_t tft_read8(bool rs) {
     tft_data_in();
     GPIOB->ODR &= ~(LCD_RD);
-    GPIOB->BSRR = (rs == TFT_RS_CMD ? GPIO_BSRR_BR_5 : GPIO_BSRR_BS_5);
+    GPIOB->BSRR = (rs == TFT_RS_CMD ? GPIO_BSRR_BR_9 : GPIO_BSRR_BS_9);
 
     delay_ns(170);
     uint8_t data = GPIOD->IDR & 0xFF;
