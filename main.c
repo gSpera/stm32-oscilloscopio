@@ -4,16 +4,16 @@
 #include "tft.h"
 #include "usart.h"
 #include "gfx.h"
+#include "tft-dma.h"
 
 extern const unsigned int DATA_START;
 extern const unsigned int DATA_LEN;
 extern const unsigned int DATA_LOAD_ADDR;
 
-// GPIOB TFT
+// GPIOB,GPIOD TFT
 // GPIOC USART
-// GPIOD TFT
 // TIM6 DELAY
-// TIM3 DMA
+// TIM4, DMA1CH4,DMA1CH5 TFT-DMA
 
 int main() {
     // Copy .data from flash to ram
@@ -52,14 +52,23 @@ int main() {
 
     gfx_draw_text(0, 0, GFX_RED, GFX_GREEN, "This is at 0");
 
-    /*
-    tft_write16(0x0, TFT_RS_CMD);
-    usart_puthex(tft_read16(TFT_RS_CMD));
-    usart_putc('\n');
-    */
-
-
     usart_puts("Finished drawing\n");
+
+    for (int i=0;i<1024;i+=2) {
+        tftdma_buffer_rs[i] = i;
+        tftdma_buffer_rs[i+1] = 0xF-i;
+    }
+
+    tftdma_init();
+
+    while(1) {
+        if (DMA1->ISR & DMA_ISR_TCIF4 != 0) break;
+        usart_puthex(TIM4->CNT);
+        usart_putc(' ');
+        usart_puthex(DMA1_Channel4->CNDTR);
+        usart_putc('\n');
+    }
+    usart_puts("Finished dma");
 
     while (1)
         ;
