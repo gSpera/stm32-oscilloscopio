@@ -124,10 +124,51 @@ void gfx_draw_char(int x, int y, GfxColor fg, GfxColor bg, int scale, char ch) {
     }
 }
 
+void gfx_draw_char_hor(int x, int y, GfxColor fg, GfxColor bg, int scale, char ch) {
+    tft_write16(TFT_WIN_HSTART, TFT_RS_CMD);
+    tft_write16(x, TFT_RS_DAT);
+    tft_write16(TFT_WIN_HEND, TFT_RS_CMD);
+    tft_write16(x+scale*8-1, TFT_RS_DAT);
+    tft_write16(TFT_WIN_VSTART, TFT_RS_CMD);
+    tft_write16(y, TFT_RS_DAT);
+    tft_write16(TFT_WIN_VEND, TFT_RS_CMD);
+    tft_write16(y+scale*8-1, TFT_RS_DAT);
+
+    tft_write16(TFT_GRAM_HSET, TFT_RS_CMD);
+    tft_write16(x, TFT_RS_DAT);
+    tft_write16(TFT_GRAM_VSET, TFT_RS_CMD);
+    tft_write16(y, TFT_RS_DAT);
+
+    tft_write16(TFT_WRITE_GRAM, TFT_RS_CMD);
+    for (int x=0;x<scale*8;x++) {
+        for (int y=0;y<scale*8;y++) {
+            int yscaled = y / scale;
+            int xscaled = x / scale;
+
+            int row = font8x8_basic[ch][7-yscaled];
+            int bit = row & (1<< (7-xscaled));
+
+            GfxColor c = bg;
+
+            if (bit != 0) {
+                c = fg;
+            }
+
+            tft_write16(c, TFT_RS_DAT);
+        }
+    }
+}
+
 void gfx_draw_text_scaled(int x, int y, GfxColor fg, GfxColor bg, int scale, const char *text) {
     for (int i=0;text[i]!='\0';i++) {
         gfx_draw_char(x+scale*8*i,y, fg, bg, scale, text[i]);
     }
 }
+void gfx_draw_text_scaled_hor(int x, int y, GfxColor fg, GfxColor bg, int scale, const char *text) {
+    for (int i=0;text[i]!='\0';i++) {
+        gfx_draw_char_hor(x, y+scale*8*i, fg, bg, scale, text[i]);
+    }
+}
 
 void gfx_draw_text(int x, int y, GfxColor fg, GfxColor bg, const char *text) { gfx_draw_text_scaled(x, y, fg, bg, 2, text); }
+void gfx_draw_text_hor(int x, int y, GfxColor fg, GfxColor bg, const char *text) { gfx_draw_text_scaled_hor(x, y, fg, bg, 2, text); }

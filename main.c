@@ -16,6 +16,7 @@ extern const unsigned int DATA_LOAD_ADDR;
 // TIM6 DELAY
 // TIM4, DMA1CH4, DMA1CH5 TFT-DMA
 // GPIOB, GPIOD, ADC3 TOUCH
+// ADC1 OSCILLOSCOPE
 
 int main() {
     // Copy .data from flash to ram
@@ -28,6 +29,8 @@ int main() {
     SystemInit();
     usart_init(9600);
     delay_init();
+    touch_init();
+    osc_init();
 
     // test_touch();
     // while(1);
@@ -44,7 +47,16 @@ int main() {
     usart_putc('\n');
 
     tft_write16(0x3, TFT_RS_CMD);
-    tft_write16((1<<12), TFT_RS_DAT);
+    tft_write16((1<<12), TFT_RS_DAT); // BGR
+
+    gfx_fill_rect(0, 0, 240, 320, GFX_BLACK);
+    gfx_fill_rect(50, 50, 240-100, 320-100, GFX_RED);
+    gfx_draw_text_hor(60, 60, GFX_WHITE, GFX_RED, "Oscilloscopio");
+    gfx_draw_text_scaled_hor(90, 90, GFX_WHITE, GFX_RED, 3, "2000");
+
+    delay_ms(500);
+
+    // gfx_fill_rect(0, 0, 240, 320, GFX_GRAY(16));
 
     gfx_fill_rect(0, 0, 240, 320, gfx_color(31, 0, 31));
     gfx_fill_rect(0, 0, 240, 320, gfx_color(31, 10, 31));
@@ -100,7 +112,6 @@ int main() {
 
 void test_touch() {
     usart_puts("Touch screen");
-    touch_init();
     touch_enable();
 
     // XP PB0

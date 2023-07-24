@@ -3,6 +3,10 @@
 #include "tft.h"
 #include "delay.h"
 
+uint8_t  touch_btns_enabled[BUTTON_SIZE/8];
+const Button touch_btns[BUTTON_SIZE] = {
+};
+
 // TFT_WR -> A1 (Arduino) -> PB6 (STM32) -> Y+
 // TFT_RS -> A2           -> PB0         -> X+
 // D6 -> X-
@@ -190,4 +194,35 @@ uint16_t touch_read_z() {
     }
     v /= 10;
     return v;
+}
+
+#define ABS(A) (A) > 0 ? (A) : -(A)
+void touch_btn_press(int x, int y) {
+    for (int i=0;i<BUTTON_SIZE;i++) {
+        if (!touch_btn_is_enabled(i)) {
+            continue;
+        }
+        Button btn = touch_btns[i];
+        int dx = ABS(btn.x - x);
+        int dy = ABS(btn.y - y);
+        if (dx < TOUCH_BTN_RADIOUS && dy < TOUCH_BTN_RADIOUS) {
+            btn.fn();
+            return;
+        }
+    }
+}
+void touch_btn_enable(int index) {
+    int position = index / 8;
+    int offset = index & 8;
+    touch_btns_enabled[position] |= 1<<offset;
+}
+void touch_btn_disable(int index) {
+    int position = index / 8;
+    int offset = index & 8;
+    touch_btns_enabled[position] &= ~(1<<offset);
+}
+int touch_btn_is_enabled(int index) {
+    int position = index / 8;
+    int offset = index & 8;
+    return touch_btns_enabled[position] != 0;
 }

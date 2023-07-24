@@ -9,8 +9,8 @@
 #define GFX_RED gfx_color(31, 0, 0)
 #define GFX_GREEN gfx_color(0, 31, 0)
 #define GFX_BLUE gfx_color(0, 0, 31)
-#define GFX_WHITE gfx_color(0, 0, 0)
-#define GFX_BLACK gfx_color(31, 31, 31)
+#define GFX_WHITE gfx_color(31, 31, 31)
+#define GFX_BLACK gfx_color(0, 0, 0)
 #define GFX_GRAY(X) gfx_color(X, X, X)
 
 typedef uint16_t GfxColor;
@@ -21,5 +21,8 @@ void gfx_fill_rect(int x, int y, int w, int h, GfxColor color);
 
 void gfx_draw_button(int x, int y, int w, int h, int stroke, GfxColor border, GfxColor fill);
 void gfx_draw_text(int x, int y, GfxColor fg, GfxColor bg, const char *text);
+void gfx_draw_text_hor(int x, int y, GfxColor fg, GfxColor bg, const char *text);
+void gfx_draw_text_scaled(int x, int y, GfxColor fg, GfxColor bg, int scale, const char *text);
+void gfx_draw_text_scaled_hor(int x, int y, GfxColor fg, GfxColor bg, int scale, const char *text);
 
 #endif
