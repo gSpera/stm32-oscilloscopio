@@ -47,3 +47,19 @@ void usart_puthex(uint32_t word) {
         word = word << 4;
     }
 }
+
+void usart_putdec(uint16_t halfword) {
+    char buff[5];
+    int n;
+
+    for(n=0;n<5;n++) {
+        uint8_t v = halfword %  10 + '0';
+        buff[n] = v;
+        halfword /= 10;
+        if (halfword == 0) break;
+    }
+
+    for (int i=n;i>=0;i--) {
+        usart_putc(buff[i]);
+    }
+}

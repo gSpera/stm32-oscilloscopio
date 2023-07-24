@@ -12,8 +12,8 @@
 
 #define LCD_RST GPIO_ODR_3
 #define LCD_CS GPIO_ODR_4
-#define LCD_RS GPIO_ODR_9
-#define LCD_WR GPIO_ODR_6
+#define LCD_RS GPIO_ODR_0 // 9 -> 0
+#define LCD_WR GPIO_ODR_1 // 6 -> 1
 #define LCD_RD GPIO_ODR_7
 #define TFTLCD_DELAY 0xFFFF
 
@@ -39,7 +39,7 @@ void tft_init() {
     tft_data_out();
     GPIOB->MODER = 0;
     GPIOB->MODER |= GPIO_MODER_MODER3_0 | GPIO_MODER_MODER4_0 |
-                    GPIO_MODER_MODER9_0 | GPIO_MODER_MODER6_0 |
+                    GPIO_MODER_MODER0_0 | GPIO_MODER_MODER1_0 |
                     GPIO_MODER_MODER7_0;
     GPIOD->OSPEEDR = 0xFFFF;
 
@@ -87,7 +87,7 @@ void lcdWrite(uint8_t v, bool rs) {
 
 void tft_write8(uint8_t v, bool rs) {
     // Set or reset GPIOB_5 (LCD_RS) based on rs
-    GPIOB->BSRR = (rs == TFT_RS_CMD ? GPIO_BSRR_BR_9 : GPIO_BSRR_BS_9);
+    GPIOB->BSRR = (rs == TFT_RS_CMD ? GPIO_BSRR_BR_0 : GPIO_BSRR_BS_0);
 
     // Set data bus to v
     GPIOD->ODR = v;
@@ -95,13 +95,13 @@ void tft_write8(uint8_t v, bool rs) {
 
     // WR low
     delay_ns(10); // Should be 0
-    GPIOB->BSRR = GPIO_BSRR_BR_6;
+    GPIOB->BSRR = GPIO_BSRR_BR_1;
     // Wait 45ns
     // Wait some more, for tCYCW
     delay_ns(70);
     // WR high
     // Wait 70ns
-    GPIOB->BSRR = GPIO_BSRR_BS_6;
+    GPIOB->BSRR = GPIO_BSRR_BS_1;
     delay_ns(70);
 }
 
@@ -260,7 +260,7 @@ void tft_init_regs() {
 uint8_t tft_read8(bool rs) {
     tft_data_in();
     GPIOB->ODR &= ~(LCD_RD);
-    GPIOB->BSRR = (rs == TFT_RS_CMD ? GPIO_BSRR_BR_9 : GPIO_BSRR_BS_9);
+    GPIOB->BSRR = (rs == TFT_RS_CMD ? GPIO_BSRR_BR_0 : GPIO_BSRR_BS_0);
 
     delay_ns(170);
     uint8_t data = GPIOD->IDR & 0xFF;

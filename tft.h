@@ -4,6 +4,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define TFT_WIDTH 320
+#define TFT_HEIGHT 240
+
 #define TFT_RS_CMD 0
 #define TFT_RS_DAT 1
 
@@ -23,5 +26,12 @@ void tft_write8(uint8_t value, bool rs);
 void tft_write16(uint16_t value, bool rs);
 uint8_t tft_read8(bool rs);
 uint16_t tft_read16(bool rs);
+
+// Disable e Enable cambiano il CS, lo schermo è attivo dopo l'init
+void tft_disable();
+void tft_enable();
+
+void tft_data_out();
+void tft_data_in();
 
 #endif

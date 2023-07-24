@@ -118,6 +118,7 @@ TSPoint TouchScreen::getPoint(void) {
 
   x = (1023 - samples[NUMSAMPLES / 2]);
 
+  // Legge la y
   pinMode(_xp, INPUT);
   pinMode(_xm, INPUT);
   pinMode(_yp, OUTPUT);
